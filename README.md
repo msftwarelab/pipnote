@@ -1,301 +1,149 @@
-# Pipnote - Local-First AI Knowledge Base
+<p align="left">
+  <img src="./branding/pipnote-wordmark.svg" alt="Pipnote" width="380" />
+</p>
 
-Pipnote is a local-first desktop notes app for people who want their own private knowledge base on their own machine.
+# Pipnote
 
-Built with React + TypeScript + Vite + Tauri + Rust.
+Pipnote is a local-first AI knowledge workspace for turning a messy folder of notes into a private, searchable, grounded knowledge base that runs on your own machine.
 
-## Why This Exists
+I built it as a serious product and engineering exercise at the intersection of modern AI, React + TypeScript frontend architecture, and Rust-powered desktop infrastructure. This is not a thin wrapper around a model API. It is an end-to-end system for vault ingestion, document extraction, embeddings lifecycle, hybrid retrieval, grounded Q&A, related-note discovery, AI-assisted reorganization, and reviewable execution.
 
-I wanted something that felt like:
-- Obsidian for local ownership
-- VS Code for folder-first workflow and tabs
-- an AI assistant that actually understands your vault
+## What This Repository Demonstrates
 
-A lot of note tools are great at writing, but weak at cleaning up messy notes, connecting related ideas, or answering from your own files without sending data away.
+- Product judgment: AI features are grounded, reviewable, and designed to earn user trust instead of hiding behind magic.
+- Modern AI systems thinking: provider abstraction, model capability validation, embeddings maintenance, hybrid retrieval, provenance labeling, and graceful fallback behavior.
+- React + TypeScript frontend depth: multi-panel desktop UX, lazy-loaded surfaces, worker-backed ranking, resilient onboarding, and state separated into focused services and contexts.
+- Rust used as real infrastructure: native filesystem access, document extraction, semantic cache management, local provider bridge, path-safe embedding storage, and faster desktop-side operations.
+- Reliability discipline: soft-delete flows, undo logs, vault consistency repair, performance diagnostics, release checks, and a broad automated test surface.
 
-Pipnote is trying to solve that in a practical way.
+## Why I Built It
 
-## What Makes Pipnote Different
+Most AI note apps are strong at generating text but weak at the harder product problems:
 
-The main value is not just “AI in notes”.
-It is more about:
-- local-first AI workflows
-- folder-first note organization
-- Q&A over your own vault
-- AI-assisted reorganization with review/approval
-- related-note discovery and link suggestions without relying on manual tagging
+- making answers feel trustworthy
+- keeping data local
+- handling messy real-world files
+- helping users reorganize safely
+- staying responsive while indexing and searching a growing vault
 
-The goal is to help turn messy personal notes into a usable knowledge base.
+Pipnote is my answer to that gap. The goal is a desktop knowledge tool that feels practical, privacy-respecting, and engineered for real use rather than demo-day theatrics.
 
-## What Is Implemented Right Now
+## Core Capabilities
 
-### Core App UX
-- local vault open/select flow
-- first-run onboarding
-- file/folder tree with remembered expand/collapse state
-- hide/show sidebar and top bar
-- multi-tab editing workflow
-- back/forward navigation between opened notes
-- favorites and recent notes sections
-- inline file/folder rename
-- create new file/folder from context menu
-- autosave while typing
+- Local vault workspace with folder tree, tabs, autosave, markdown edit/preview/split modes, backlinks, outline, favorites, and recent notes.
+- Grounded Q&A over local notes and AI-readable documents with source snippets, provenance labels, and fallback handling when grounding is weak.
+- Embeddings generation, stale/missing index repair, related-note discovery, and hybrid search across semantic and keyword signals.
+- AI-assisted vault reorganization with suggestion levels, duplicate detection, review flows, soft delete, and undo logs.
+- Preview and AI-readable handling for multiple document types including Markdown, text, PDF, DOCX, PPTX, XLSX, and CSV where extraction is available.
+- Performance and reliability tooling including Rust-side semantic cache, worker-based ranking, adaptive embedding queue scheduling, consistency repair, and diagnostics.
 
-### Editor UX
-- markdown edit / preview / split modes
-- live markdown preview
-- formatting toolbar (`B`, `I`, `H1`, `Todo`, `Code`, `Quote`)
-- in-file search
-- vault-wide search
-- outline panel from headings
-- backlinks panel
-- related notes panel
-- focus mode and presentation mode
-- status bar with line/char/selection info
+## Architecture Snapshot
 
-### File Support
-- markdown and text-like notes are editable
-- images are previewable
-- PDF preview is supported
-- DOCX preview is supported as extracted readable text
-- PDFs and DOCX are AI-readable for search/Q&A when extraction works
-- images are preview-only for now and are not AI-indexed
+```mermaid
+flowchart LR
+    User["User"] --> UI["React 19 + TypeScript desktop UI"]
+    UI --> State["Contexts + service layer"]
+    State --> Worker["Web Worker for ranking and index compute"]
+    State --> AI["Search, embeddings, related notes, reorganization"]
+    State --> Tauri["Tauri command boundary"]
+    AI --> Provider["Local AI provider abstraction"]
+    Provider --> Models["Ollama or LM Studio models"]
+    Tauri --> Rust["Rust layer for filesystem, extraction, semantic cache, and native bridging"]
+    Rust --> Vault["Local vault and .embeddings store"]
+```
 
-### AI Features (via Local AI Provider)
-- smart note classification on first save
-- local embeddings generation and regeneration
-- Q&A over your own notes using retrieval
-- grounded answer/source display in the Q&A panel
-- source snippet jump/open from Q&A results
-- link suggestions between related notes
-- related notes discovery
-- fact extraction for simple direct questions
-- AI vault reorganization with approval flow
-  - move suggestions
-  - delete suggestions
-  - merge suggestions
-  - structural cleanup suggestions
-- suggestion levels:
-  - strong
-  - recommended
-  - optional
+See the deeper design in [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
-### Reorganization UX
-- per-item approve/deny
-- approve all / deny all
-- empty folders can now be suggested as delete actions
-- mentioned file preview in reorganize review
-- soft delete behavior for destructive actions
-- undo log written to `.vn-system/reorg-undo`
+## Technical Highlights
 
-### Reliability / Performance Work
-- Rust-side semantic search
-- semantic cache stats and live diagnostics
-- worker-based ranking for semantic operations
-- background post-processing queue
-- adaptive embedding queue
-- large-vault performance scan in settings
-- cached keyword search / file content / AI-readable content paths
-- safer handling for moved/renamed/deleted files
-- vault consistency repair tools
+### React + TypeScript Frontend
 
-### Theme / Layout Work
-- multiple theme families including current app theme, Obsidian-style, and Codex-style direction
-- light and dark support
-- layout controls for sidebar, top bar, and assistant panel
-- assistant edge toggle instead of a floating button
+- Built as a desktop-grade React application instead of a toy chat shell.
+- Uses focused services and contexts for editor state, tabs, settings, theme, and toast flows.
+- Keeps heavier semantic ranking off the main thread with a dedicated worker and inline fallback path.
+- Uses lazy loading for larger panels so the app stays responsive as features grow.
+
+### AI System Design
+
+- Supports multiple local runtimes through a narrow provider interface instead of hard-coding one model stack.
+- Separates text-generation and embedding capabilities, validates model compatibility, and blocks unsafe actions when provider health is bad.
+- Blends semantic retrieval, keyword search, reranking, heuristics, and provenance labeling so answers are not just "AI output" but explainable product behavior.
+- Treats destructive AI as a review problem, not an autonomy problem: reorganize suggestions are inspectable, soft-deleted, and undoable.
+
+### Rust as AI Infrastructure
+
+- Rust is not only packaging glue here; it owns native boundaries that matter.
+- Tauri commands handle filesystem traversal, preview and extraction paths, semantic cache construction, embedding storage, rename/delete consistency, and local provider requests.
+- This split keeps UX iteration fast in TypeScript while placing native and performance-sensitive work closer to the desktop boundary.
+
+### Quality and Release Discipline
+
+- 36 test files cover core editor logic, retrieval ranking, explainability, grounding, reorganization rules, heuristics, caching, and indexing utilities.
+- Playwright smoke coverage exists for end-to-end validation.
+- `scripts/release-check.sh` runs editor and logic tests, frontend build, and `cargo check` before release packaging.
+
+## Design Principles
+
+- Local-first before cloud-first.
+- Grounded answers before flashy answers.
+- Reviewable AI actions before silent automation.
+- Performance-aware UX instead of background work that fights the editor.
+- Clear system boundaries over framework magic.
+
+## Current Limits
+
+- Image OCR and image-grounded retrieval are not implemented yet.
+- Answer quality still depends on local model quality and extracted document text quality.
+- The product has meaningful automated coverage, but deeper end-to-end regression coverage is still a growth area.
 
 ## Tech Stack
 
-- Frontend: React 19, TypeScript, Tailwind CSS
-- Desktop shell/backend: Tauri v2 + Rust
-- AI runtime: local AI via Ollama or LM Studio
-- Tests: Node test runner + Playwright
+- Frontend: React 19, TypeScript, Vite, Tailwind CSS
+- Desktop shell: Tauri v2
+- Native layer: Rust
+- Local AI runtimes: Ollama or LM Studio
+- Testing: Node test runner + Playwright
 
-## Prerequisites
+## Run Locally
 
-Install these first:
+### Prerequisites
 
-1. Node.js 20+
-2. `pnpm` 9+
-3. Rust toolchain (stable)
-4. Tauri system dependencies for your OS
-5. One local AI runtime:
-   - Ollama
-   - or LM Studio with local server enabled
+- Node.js 20+
+- `pnpm` 9+
+- Rust stable
+- Tauri system dependencies for your OS
+- One local AI runtime: Ollama or LM Studio
 
-## Quick Setup
-
-Install dependencies:
+### Setup
 
 ```bash
 pnpm install
-```
-
-### Option A: Ollama
-
-```bash
-ollama serve
-```
-
-Pull at least:
-- one text model for answering/classification
-- one embedding model for retrieval
-
-Example:
-
-```bash
-ollama pull gpt-oss:120b-cloud
-ollama pull nomic-embed-text
-```
-
-### Option B: LM Studio
-
-1. Open LM Studio
-2. Load a chat/completions-capable model
-3. Load an embedding-capable model if you want semantic search and Q&A indexing
-4. Start the local server
-5. Keep the OpenAI-compatible local endpoint enabled, usually at `http://localhost:1234`
-
-Run the desktop app in dev mode:
-
-```bash
 pnpm tauri:dev
 ```
 
-If you only want the web UI during development:
+If you only want the web UI:
 
 ```bash
 pnpm dev
 ```
 
-## Recommended First Run
-
-1. Launch the app
-2. Choose your vault folder
-3. Finish onboarding
-4. Open `Settings`
-5. Choose your local AI provider and check the selected models
-6. Generate or repair embeddings
-7. Ask a few questions in the Q&A panel
-8. Run `Reorganize Vault` and approve only the suggestions you trust first
-
-## Local AI Provider Notes
-
-Pipnote blocks AI actions if the selected local AI provider is unavailable.
-
-That means these actions should not run if your provider is down or the selected models are invalid:
-- Reorganize Vault
-- Regenerate embeddings
-- Retry failed embeddings
-- Repair stale/missing embeddings
-- normal Q&A over your vault
-
-The app should show one clear error instead of spamming many errors.
-
-### Provider-specific notes
-
-- Ollama:
-  - default base URL: `http://localhost:11434`
-  - good default when you want a simple local model workflow
-- LM Studio:
-  - default base URL: `http://localhost:1234`
-  - uses the OpenAI-compatible local server APIs
-  - embeddings work only if the loaded LM Studio setup exposes an embeddings-capable model
-
-## Search and Q&A Notes
-
-Pipnote currently uses a local retrieval flow roughly like this:
-- generate/query embeddings locally
-- do semantic retrieval over your vault
-- combine with keyword search when needed
-- build grounded context from the best matching notes/documents
-- ask the local text model to answer from that context
-
-It also has fallback behavior:
-- if no relevant note context is found, it can return a more general model answer
-- that answer should be labeled more clearly as general, not strongly grounded
-
-## Build Commands
+Useful checks:
 
 ```bash
-pnpm build
-pnpm tauri:build
+pnpm lint
+pnpm test:editor
+pnpm release:check
 ```
-
-Platform-specific:
-
-```bash
-pnpm tauri:build:mac
-pnpm tauri:build:win
-```
-
-Note for macOS:
-- `pnpm tauri:build` now produces a `.app` bundle and a shareable `.dmg`
-- the DMG includes an `Applications` shortcut and an install readme
-- users should drag `Pipnote.app` into `Applications` instead of running it from the mounted disk image
-
-## Scripts
-
-- `pnpm dev` - run Vite dev server
-- `pnpm tauri:dev` - run full desktop app in dev
-- `pnpm build` - build frontend
-- `pnpm tauri:build` - build desktop app
-- `pnpm lint` - run ESLint
-- `pnpm test:editor` - run core editor/logic tests
-- `pnpm test:e2e` - run Playwright tests
-- `pnpm test:e2e:headed` - run Playwright with headed browser
-- `pnpm test:e2e:ui` - run Playwright UI mode
-
-## Current Limitations
-
-This project has improved a lot, but it is still an MVP and there are real limitations.
-
-### AI / Retrieval
-- answer quality still depends on embedding quality, extraction quality, and local model quality
-- some PDFs or DOCX files may still fail if text extraction is poor or the document is messy
-- very weak retrieval can still produce answers that need more ranking tuning
-
-### File Support
-- images are preview-only right now
-- image OCR is not implemented yet
-- PDF/DOCX support depends on extracted text, not perfect native document understanding
-
-### Reorganization
-- reorganization suggestions are much better than before, but still not perfect
-- some edge-case suggestions can still be too aggressive or too cautious
-- destructive changes are reviewed and logged, but users should still confirm carefully
-
-### UX / Testing
-- some advanced block-level editing ideas are still partial
-- full end-to-end regression coverage is not complete yet
-- bundle size is still a bit heavier than ideal and could use more code splitting
 
 ## Project Structure
 
-- `src/` - React app
-- `src/components/` - UI components
-- `src/contexts/` - app/editor/theme/settings contexts
-- `src/services/` - vault, search, local AI, reorganize, related notes, facts, performance
-- `src/services/providers/` - provider-specific adapters for Ollama and LM Studio
-- `src/utils/` - helpers, ranking, formatting, chunking, performance utilities
-- `src-tauri/` - Rust backend commands and filesystem bridge
-- `tests/` - editor and utility tests
+- `src/`: React application, UI components, contexts, services, workers, and domain utilities
+- `src-tauri/`: Rust commands, native filesystem bridge, semantic cache, and local AI request handling
+- `tests/`: unit tests for retrieval, heuristics, reorganization, editor behavior, and supporting utilities
+- `docs/`: architectural notes and supporting design documentation
 
-## Product Direction
+## What I Want This Repo To Signal
 
-The bigger direction for Pipnote is:
-- local-first AI knowledge base
-- smarter automatic linking between related notes
-- better cleanup of messy vaults
-- stronger grounded Q&A from your own files
-- a note app that feels practical, private, and fast enough to use every day
+If you are evaluating my work through this repository, the signal is intentional: I like building AI products that are useful in the real world, not just impressive in a demo. That means strong product taste, honest grounding, careful system boundaries, fast interfaces, and enough infrastructure discipline to make the experience trustworthy.
 
-## Final Note
-
-This project has been built through a lot of iteration, feedback, bug fixing, redesigns, and honest trial-and-error.
-
-It is not pretending to be perfect.
-It is trying to be genuinely useful.
-
-If you try it and find rough edges, that feedback is extremely valuable.
+Pipnote reflects how I think about modern AI software: the model matters, but retrieval quality, UX, performance, safety, and operational clarity matter just as much.
