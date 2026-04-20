@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="160" y1="128" x2="864" y2="896" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A0C10"/>
+      <stop offset="1" stop-color="#171C22"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="252" y1="224" x2="752" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E7ECF2"/>
+      <stop offset="1" stop-color="#C0C9D2"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="604" y1="236" x2="764" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8FB9FF"/>
+      <stop offset="1" stop-color="#7FA4E8"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="64" y="64" width="896" height="896" rx="216" fill="url(#bg)"/>
+  <rect x="90" y="90" width="844" height="844" rx="190" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="2"/>
+
+  <path d="M694 296C652 254 591 228 519 228C381 228 276 338 276 484C276 631 383 741 524 741C601 741 665 709 707 659" stroke="url(#mark)" stroke-width="88" stroke-linecap="round"/>
+  <path d="M729 361V648C729 709 692 748 628 748H523" stroke="url(#mark)" stroke-width="88" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="729" cy="281" r="46" fill="url(#accent)"/>
+</svg>
