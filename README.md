@@ -1,7 +1,3 @@
-<p align="left">
-  <img src="./branding/pipnote-wordmark.svg" alt="Pipnote" width="380" />
-</p>
-
 # Pipnote
 
 Pipnote is a local-first AI knowledge workspace for turning a messy folder of notes into a private, searchable, grounded knowledge base that runs on your own machine.
