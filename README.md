@@ -1,5 +1,7 @@
 # Pipnote
 
+![Pipnote App Screenshot](./app_sreenshot.png)
+
 Pipnote is a local-first AI knowledge workspace for turning a messy folder of notes into a private, searchable, grounded knowledge base that runs on your own machine.
 
 I built it as a serious product and engineering exercise at the intersection of modern AI, React + TypeScript frontend architecture, and Rust-powered desktop infrastructure. This is not a thin wrapper around a model API. It is an end-to-end system for vault ingestion, document extraction, embeddings lifecycle, hybrid retrieval, grounded Q&A, related-note discovery, AI-assisted reorganization, and reviewable execution.
